@@ -442,16 +442,11 @@ input[type="checkbox"] {
     </div>
   </div>
 
-  <form id="leadForm" method="POST">
+  <form id="leadForm" method="POST" novalidate>
 
-    <!-- Salesforce identification -->
-    <input type="hidden" name="Lead_Source_Detail__c" value="NORTON_WEB_TO_LEAD_CAPTURE_OFFLINE">    
+    <input type="hidden" name="Lead_Source_Detail__c" value="NORTON_WEB_TO_LEAD_CAPTURE_OFFLINE">   
+    <input type="hidden" name="Language__c" id="sfLanguage"> 
 
-    <!-- <label data-i18n="firstName">First Name</label>
-    <input name="first_name" type="text">
-
-    <label class="required" data-i18n="lastName">Last Name</label>
-    <input name="last_name" type="text" required> -->
     <div class="form-row">
       <div>
         <label data-i18n="firstName">First Name</label>
@@ -470,7 +465,7 @@ input[type="checkbox"] {
     <div class="form-row">
       <div>
         <label data-i18n="phone">Phone</label>
-        <input name="phone" type="tel" pattern="^\+?[0-9]{7,15}$" maxlength="16" inputmode="tel">
+        <input name="phone" type="tel" inputmode="tel" autocomplete="tel">
       </div>
 
       <div>
@@ -485,18 +480,7 @@ input[type="checkbox"] {
         >
       </div>
     </div>
-    <!-- <label data-i18n="phone">Phone</label>
-    <input name="phone" type="tel" pattern="^\+?[0-9]{7,15}$" maxlength="16" inputmode="tel">
-
-    <label data-i18n="postalCode">Postal Code</label>
-    <input
-      name="Location_Pin_Code__c"
-      type="text"
-      maxlength="10"
-      inputmode="text"
-      pattern="[A-Za-z0-9\s\-]{3,10}"
-      data-i18n-placeholder="postalHint"
-    > -->
+    
     <div class="form-row">
       <div>
         <label data-i18n="enquiryModel">Enquiry Model</label>
@@ -514,17 +498,6 @@ input[type="checkbox"] {
         </select>
       </div>
     </div>
-    <!-- <label data-i18n="enquiryModel">Enquiry Model</label>
-    <select name="Web_To_Lead_Enquiry_Model_Id__c" >
-      <option value="" data-i18n="selectProduct">-- Select Product --</option>
-    </select>
-
-    <label data-i18n="enquiryType">Enquiry Type</label>
-    <select name="Enquiry_Type__c">
-      <option value="" data-i18n="selectEnquiryType">-- Select Enquiry Type --</option>
-      <option value="Enquiry" data-i18n="enquiry">Enquiry</option>
-      <option value="Waitlist" data-i18n="waitlist">Waitlist</option>
-    </select> -->
     
     <div class="terms-section" style="margin:18px 0; border-top:1px solid #e5e7eb;">
       <label class="consent-item-terms">
@@ -733,6 +706,18 @@ const WEB_TO_LEAD_URL =
     }, batch.length * 500);
   }
 
+  const last_name = form.querySelector('input[name="last_name"]');
+
+  last_name.addEventListener("input", () => {
+    last_name.setCustomValidity("");
+  });
+
+  const phoneInput = form.querySelector('input[name="phone"]');
+
+  phoneInput.addEventListener("input", () => {
+    phoneInput.setCustomValidity("");
+  });
+
   const emailInput = document.querySelector('input[name="email"]');
 
   emailInput.addEventListener("input", function () {
@@ -741,20 +726,62 @@ const WEB_TO_LEAD_URL =
 
   form.addEventListener("submit", e => {
     
+    const lang = localStorage.getItem("lang") || "en";
+    const sfLangValue = LANGUAGE_TO_SF[lang] || "English";
+    document.getElementById("sfLanguage").value = sfLangValue;
+
+    const requiredFields = form.querySelectorAll("[required]");
+
+    for (const field of requiredFields) {
+      if (!field.value.trim()) {
+        e.preventDefault();
+        field.setCustomValidity(I18N[lang].requiredField);
+        field.reportValidity();
+        field.focus();
+        return;
+      }
+    }
+
     const emailInput = form.querySelector('input[name="email"]');
-    const emailRegex =
-      /^(?!\.)(?!.*\.\.)([A-Za-z0-9._%+-]{1,64})@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    const emailRegex = /^(?!\.)(?!.*\.\.)[^\s@]{1,64}(?<!\.)@[^\s@]+\.[^\s@]{2,}$/u;;
+     // /^(?!\.)(?!.*\.\.)([A-Za-z0-9._%+-]{1,64})@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
     if (!emailRegex.test(emailInput.value.trim())) {
       e.preventDefault();
-      emailInput.focus();
-      emailInput.setCustomValidity("Please enter a valid email address");
+      emailInput.setCustomValidity(I18N[lang].invalidEmail);
       emailInput.reportValidity();
+      emailInput.focus();
       return;
-    } else {
-      emailInput.setCustomValidity("");
     }
-    if (!navigator.onLine) {
+
+    const phoneInput = form.querySelector('input[name="phone"]');
+
+    if (phoneInput.value.trim()) {
+
+      const raw = phoneInput.value.trim();
+      const digitsOnly = raw.replace(/\D/g, "");
+
+      if (digitsOnly.length < 8 || digitsOnly.length > 15) {
+        e.preventDefault();
+        phoneInput.setCustomValidity(I18N[lang].invalidPhone);
+        phoneInput.reportValidity();
+        phoneInput.focus();
+        return;
+      }
+
+      phoneInput.value = raw.startsWith("+")
+        ? "+" + digitsOnly
+        : digitsOnly;
+    }
+
+    const terms = document.getElementById("termsAccepted");
+
+    if (!terms.checked) {
+      e.preventDefault();
+      terms.setCustomValidity(I18N[lang].acceptTerms);
+      terms.reportValidity();
+      return;
+    }    if (!navigator.onLine) {
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form));    
       const q = loadQueue();
@@ -864,6 +891,13 @@ loadModels();
 
 <script>
   
+const LANGUAGE_TO_SF = {
+  en: "English",
+  fr: "French",
+  de: "German",
+  es: "Spanish",
+  it: "Italian"
+};  
 const I18N = {
   en: {
     title: "Norton Enquiry Form",
@@ -892,7 +926,11 @@ const I18N = {
     successOnlineMessage: "Your enquiry has been submitted successfully.",
     successOfflineTitle: "Saved Offline",
     successOfflineMessage: "Your enquiry has been saved and will sync automatically when you're back online.",
-    ok: "OK"
+    ok: "OK",
+    invalidEmail: "Please enter a valid email address",
+    requiredField: "This field is required",
+    acceptTerms: "You must accept the Terms & Conditions",
+    invalidPhone: "Please enter a valid phone number"
   },
 
   fr: {
@@ -922,7 +960,11 @@ const I18N = {
     successOnlineMessage: "Votre demande a été envoyée avec succès.",
     successOfflineTitle: "Enregistré hors ligne",
     successOfflineMessage: "Votre demande a été enregistrée et sera synchronisée automatiquement lorsque vous serez en ligne.",
-    ok: "OK"
+    ok: "OK",
+    invalidEmail: "Veuillez saisir une adresse e-mail valide",
+    requiredField: "Ce champ est obligatoire",
+    acceptTerms: "Vous devez accepter les conditions générales",
+    invalidPhone: "Veuillez saisir un numéro de téléphone valide"
   },
 
   de: {
@@ -952,7 +994,11 @@ const I18N = {
     successOnlineMessage: "Ihre Anfrage wurde erfolgreich gesendet.",
     successOfflineTitle: "Offline gespeichert",
     successOfflineMessage: "Ihre Anfrage wurde gespeichert und wird automatisch synchronisiert, sobald Sie wieder online sind.",
-    ok: "OK"
+    ok: "OK",
+    invalidEmail: "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    requiredField: "Dieses Feld ist erforderlich",
+    acceptTerms: "Sie müssen die Allgemeinen Geschäftsbedingungen akzeptieren",
+    invalidPhone: "Bitte geben Sie eine gültige Telefonnummer ein"
   }
 };
 
