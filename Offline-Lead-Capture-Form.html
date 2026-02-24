@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Norton Enquiry Form</title>
+<link rel="icon" type="image/svg+xml" href="assets/Norton_Stamp_Roundel_RGB.svg">
+
+<style>
+* { box-sizing: border-box; }
+
+:root {
+  --norton-black-1100: #010203;
+  --norton-black-1000: #2A2D32;
+  --norton-black-900:  #4A4D52;
+  --norton-black-800:  #6A6D72;
+  --norton-black-700:  #909297;
+  --norton-black-600:  #ADB1B4;
+  --norton-black-500:  #C1C3C4;
+  --norton-black-400:  #E0E1E2;
+  --norton-black-300:  #E8E9EA;
+  --norton-black-200:  #EFF0F1;
+  --norton-black-100:  #F7F7F8;
+  --norton-white:      #FFFFFF;
+
+  --info-500:   #278AE6;
+  --success-500:#41B631;
+  --warning-400:#EF9F00;
+  --error-400:  #D22316;
+
+  --accent-gold: #FEDB00;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  background: linear-gradient(
+    135deg,
+    var(--norton-black-100),
+    var(--norton-black-200)
+  );
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.page-wrapper {
+  width: 100%;
+  max-width: 600px;
+  padding: 24px 16px;
+}
+
+h1 {
+  margin-bottom: 12px;
+  font-size: 22px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.card {
+  background: var(--norton-white);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow:
+    0 15px 40px rgba(15,23,42,.12),
+    0 3px 6px rgba(15,23,42,.08);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--norton-black-700);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.dot.online { background: var(--success-500); }
+.dot.offline { background: var(--error-400) }
+
+/* Toggle */
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.toggle-switch {
+  width: 38px;
+  height: 20px;
+  background: #d4d4d8;
+  border-radius: 999px;
+  position: relative;
+  cursor: pointer;
+}
+.toggle-switch::after {
+  content: "";
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform .2s;
+}
+.toggle-switch.on { background: var(--norton-black-1100); }
+.toggle-switch.on::after { transform: translateX(18px); }
+
+label {
+  display: block;
+  font-size: 13px;
+  margin-top: 14px;
+  font-weight: 500;
+  color: var(--norton-black-900);
+}
+
+label.required::after {
+  content: " *";
+  color: #ef4444;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+select  {
+  width: 100%;
+  padding: 10px 12px;
+  margin-top: 6px;
+  border-radius: 10px;
+  border: 1px solid var(--norton-black-400);
+  background: var(--norton-white);
+  color: var(--norton-black-1100);
+  font-size: 14px;
+}
+select {
+  padding-right: 40px; /* space for arrow */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%236b7280' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--norton-black-1100);
+  box-shadow: 0 0 0 2px rgba(1,2,3,.12);
+}
+
+.consent-section {
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.consent-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--norton-black-900);
+}
+
+.consent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px 16px;
+}
+
+.consent-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.consent-item-terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+}
+/* Footer */
+.form-footer {
+  margin-top: 22px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn {
+  width: 100%;
+  display: block;
+
+  background: linear-gradient(
+    180deg,
+    var(--norton-black-1000) 0%,
+    var(--norton-black-1100) 100%
+  );
+
+  color: var(--norton-white);
+  border: none;
+  border-radius: 0px;
+
+  padding: 14px 36px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 16px rgba(1, 2, 3, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 20px rgba(1, 2, 3, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.btn:active {
+  transform: translateY(0);
+  box-shadow:
+    0 4px 10px rgba(1, 2, 3, 0.25),
+    inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+/* Pending sync */
+.pending-bar {
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--norton-black-800);
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.sync-icon {
+  width: 18px;
+  height: 18px;
+  stroke: var(--norton-black-900);
+  fill: none;
+  stroke-width: 2;
+  cursor: pointer;
+}
+
+.sync-icon.rotating {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.lang-switch select {
+  font-size: 12px;
+  padding: 4px 10px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  color: #374151;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 22px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%236b7280' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.lang-switch select:focus {
+  outline: none;
+  border-color: #4f46e5;
+}
+
+.logo-wrapper {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.company-logo {
+  max-width: 300px;
+  width: auto;
+}
+@media (max-width: 480px) {
+  .company-logo {
+    max-width: 180px;
+  }
+}
+.section-header h2 {
+  color: var(--norton-black-1100);
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.section-underline {
+  width: 40px;
+  height: 3px;
+  background: var(--accent-gold);
+  border-radius: 3px;
+  margin-top: 6px;
+}
+.terms-section {
+  color: var(--norton-black-800);
+  font-size: 12px;
+}
+.popup-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(1, 2, 3, 0.6); /* Norton Black overlay */
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.popup-card {
+  background: var(--norton-white);
+  padding: 24px 28px;
+  border-radius: 18px;
+  max-width: 320px;
+  width: calc(100% - 32px);
+  text-align: center;
+  box-shadow: 0 24px 48px rgba(1, 2, 3, 0.35);
+}
+
+.popup-card h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--success-500); /* ✔ Success green */
+}
+
+.popup-card p {
+  margin: 0 0 18px;
+  font-size: 14px;
+  color: var(--norton-black-800);
+}
+
+/* Norton primary button */
+.popup-btn {
+  background: linear-gradient(
+    180deg,
+    var(--norton-black-1000),
+    var(--norton-black-1100)
+  );
+  color: var(--norton-white);
+  border: none;
+  border-radius: 999px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.popup-btn:hover {
+  background: linear-gradient(
+    180deg,
+    var(--norton-black-900),
+    var(--norton-black-1100)
+  );
+}
+input[type="checkbox"] {
+  accent-color: var(--norton-black-1100);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 480px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="page-wrapper">
+
+<div class="logo-wrapper">
+  <img
+    src="assets/Norton_Secondary_Lockup_Horizontal.svg"
+    alt="Norton Logo"
+    class="company-logo"
+  />
+</div>
+<div class="card">
+
+  <div class="card-header">
+    <div class="section-header">
+      <h2 data-i18n="leadDetails">Details</h2>
+      <div class="section-underline"></div>
+    </div>
+    <div class="status-row">
+      <span id="dot" class="dot"></span>
+      <span id="netText"></span>
+      <div class="lang-switch">
+        <select id="langSelect">
+          <option value="en">English</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+        </select>
+      </div>
+      <div class="toggle">
+        Auto-sync
+        <div id="autoToggle" class="toggle-switch"></div>
+      </div>
+    </div>
+  </div>
+
+  <form id="leadForm" method="POST">
+
+    <!-- Salesforce identification -->
+    <input type="hidden" name="Lead_Source_Detail__c" value="NORTON_WEB_TO_LEAD_CAPTURE_OFFLINE">    
+
+    <!-- <label data-i18n="firstName">First Name</label>
+    <input name="first_name" type="text">
+
+    <label class="required" data-i18n="lastName">Last Name</label>
+    <input name="last_name" type="text" required> -->
+    <div class="form-row">
+      <div>
+        <label data-i18n="firstName">First Name</label>
+        <input name="first_name" type="text">
+      </div>
+
+      <div>
+        <label class="required" data-i18n="lastName">Last Name</label>
+        <input name="last_name" type="text" required>
+      </div>
+    </div>
+
+    <label class="required" data-i18n="email">Email</label>
+    <input name="email" type="text" required inputmode="email">
+
+    <div class="form-row">
+      <div>
+        <label data-i18n="phone">Phone</label>
+        <input name="phone" type="tel" pattern="^\+?[0-9]{7,15}$" maxlength="16" inputmode="tel">
+      </div>
+
+      <div>
+        <label data-i18n="postalCode">Postal Code</label>
+        <input
+          name="Location_Pin_Code__c"
+          type="text"
+          maxlength="10"
+          inputmode="text"
+          pattern="[A-Za-z0-9\s\-]{3,10}"
+          data-i18n-placeholder="postalHint"
+        >
+      </div>
+    </div>
+    <!-- <label data-i18n="phone">Phone</label>
+    <input name="phone" type="tel" pattern="^\+?[0-9]{7,15}$" maxlength="16" inputmode="tel">
+
+    <label data-i18n="postalCode">Postal Code</label>
+    <input
+      name="Location_Pin_Code__c"
+      type="text"
+      maxlength="10"
+      inputmode="text"
+      pattern="[A-Za-z0-9\s\-]{3,10}"
+      data-i18n-placeholder="postalHint"
+    > -->
+    <div class="form-row">
+      <div>
+        <label data-i18n="enquiryModel">Enquiry Model</label>
+        <select name="Web_To_Lead_Enquiry_Model_Id__c" >
+          <option value="" data-i18n="selectProduct">-- Select Product --</option>
+        </select>
+      </div>
+
+      <div>
+        <label data-i18n="enquiryType">Enquiry Type</label>
+        <select name="Enquiry_Type__c">
+          <option value="" data-i18n="selectEnquiryType">-- Select Enquiry Type --</option>
+          <option value="Enquiry" data-i18n="enquiry">Enquiry</option>
+          <option value="Waitlist" data-i18n="waitlist">Waitlist</option>
+        </select>
+      </div>
+    </div>
+    <!-- <label data-i18n="enquiryModel">Enquiry Model</label>
+    <select name="Web_To_Lead_Enquiry_Model_Id__c" >
+      <option value="" data-i18n="selectProduct">-- Select Product --</option>
+    </select>
+
+    <label data-i18n="enquiryType">Enquiry Type</label>
+    <select name="Enquiry_Type__c">
+      <option value="" data-i18n="selectEnquiryType">-- Select Enquiry Type --</option>
+      <option value="Enquiry" data-i18n="enquiry">Enquiry</option>
+      <option value="Waitlist" data-i18n="waitlist">Waitlist</option>
+    </select> -->
+    
+    <div class="terms-section" style="margin:18px 0; border-top:1px solid #e5e7eb;">
+      <label class="consent-item-terms">
+        <input
+          type="checkbox"
+          id="termsAccepted"
+          required
+        >
+        <span data-i18n="termsText">
+          I have read and agree to the Terms & Conditions
+        </span>
+      </label>
+    </div>
+    <div class="consent-section">
+      <div class="consent-title" data-i18n="commPref">Communication Preferences</div>
+      <div class="consent-title" data-i18n="commPref2">Communication Preferences</div>
+      <div class="consent-grid">
+        <label class="consent-item"><input type="checkbox" name="Meta_Emai_Consent__c" value="true"><span data-i18n="email">Email</span></label>
+        <label class="consent-item"><input type="checkbox" name="Meta_Phone_Consent__c" value="true"><span data-i18n="phone">Phone</span></label>
+        <label class="consent-item"><input type="checkbox" name="Meta_SMS_Consent__c" value="true"> SMS</label>
+        <label class="consent-item"><input type="checkbox" name="Meta_WhatsApp_Consent__c" value="true"> WhatsApp</label>
+        <label class="consent-item"><input type="checkbox" name="Meta_RCS_Consent__c" value="true"> RCS</label>
+      </div>
+    </div>
+    
+    <div class="form-footer">
+      <button class="btn" data-i18n="submit">Submit Lead</button>
+    </div>
+    
+    <!-- <div style="margin:14px 0; border-top:1px solid #e5e7eb;"></div> -->
+  </form>
+
+  <div id="pendingBar" class="pending-bar">
+    <span id="pendingText"></span>
+    <svg id="syncBtn" class="sync-icon" viewBox="0 0 24 24">
+      <path d="M3 12a9 9 0 0 1 15.5-6.36"/>
+      <polyline points="18 3 18 6 15 6"/>
+      <path d="M21 12a9 9 0 0 1-15.5 6.36"/>
+      <polyline points="6 21 6 18 9 18"/>
+    </svg>
+  </div>
+
+</div>
+
+<iframe name="hidden_sf_target" style="display:none;"></iframe>
+</div>
+
+<script>
+/* ========= SALESFORCE ENV CONFIG ========= */
+const SF_ENV = "UAT"; 
+
+const SF_CONFIG = {
+   DEV: {
+    BASE_URL: "https://test.salesforce.com",
+    ORG_ID: "00DQ1000001wi6X"
+  },
+  UAT: {
+    BASE_URL: "https://test.salesforce.com",
+    ORG_ID: "00DS90000011ARN"
+  },
+  PROD: {
+    BASE_URL: "https://login.salesforce.com",
+    ORG_ID: "00D8d00000Apx47"
+  }
+};
+
+const MODEL_CONFIG = {
+  DEV: [
+    { label: "Manx", id: "01tSr00000BCqJ4IAL" },
+    { label: "Manx First Edition", id: "01tQ100000DYTmTIAX" },
+    { label: "Manx R", id: "01tSr00000BCrWrIAL" },
+    { label: "Manx R First Edition", id: "01tSr00000BCrVFIA1" },
+    { label: "Atlas", id: "01tSr00000BCqKgIAL" },
+    { label: "Atlas GT", id: "01tSr00000BCrbhIAD" }
+  ],
+  UAT: [
+    { label: "Manx", id: "01tS900000FHAgtIAH" },
+    { label: "Manx First Edition", id: "01tS900000FJGA7IAP" },
+    { label: "Manx R", id: "01tS900000FHFq1IAH" },
+    { label: "Manx R First Edition", id: "01tS900000FHFoPIAX" },
+    { label: "Atlas", id: "01tS900000FHFy5IAH" },
+    { label: "Atlas GT", id: "01tS900000FHFurIAH" }
+  ],
+  PROD: [
+    { label: "Manx", id: "01tSr00000BCqJ4IAL" },
+    { label: "Manx First Edition", id: "01tSr00000BEH4HIAX" },
+    { label: "Manx R", id: "01tSr00000BCrWrIAL" },
+    { label: "Manx R First Edition", id: "01tSr00000BCrVFIA1" },
+    { label: "Atlas", id: "01tSr00000BCqKgIAL" },
+    { label: "Atlas GT", id: "01tSr00000BCrbhIAD" }
+  ]
+};
+
+const ACTIVE = SF_CONFIG[SF_ENV];
+const WEB_TO_LEAD_URL =
+  ACTIVE.BASE_URL + "/servlet/servlet.WebToLead?encoding=UTF-8";
+
+   function getPendingText(count) {
+    const langSelect = document.getElementById("langSelect");
+    const lang = langSelect ? langSelect.value : "en";
+
+    if (!window.I18N || !I18N[lang]) {
+      return `${count} offline record(s) pending`;
+    }
+
+    return I18N[lang].pending.replace("{count}", count);
+  }
+/* ========= OFFLINE + AUTO SYNC ========= */
+(() => {
+  const QUEUE_KEY = "pendingSfLeads";
+  const AUTO_KEY = "autoSync";
+  const BATCH = 10;
+
+  const dot = document.getElementById("dot");
+  const netText = document.getElementById("netText");
+  const autoToggle = document.getElementById("autoToggle");
+  const pendingBar = document.getElementById("pendingBar");
+  const pendingText = document.getElementById("pendingText");
+  const syncBtn = document.getElementById("syncBtn");
+  const form = document.getElementById("leadForm");
+
+  form.action = WEB_TO_LEAD_URL;
+
+  let autoSync = localStorage.getItem(AUTO_KEY);
+  autoSync = autoSync === null ? true : autoSync === "true";
+
+  const loadQueue = () => JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]");
+  const saveQueue = q => localStorage.setItem(QUEUE_KEY, JSON.stringify(q));
+
+  function updateUI() {
+    const online = navigator.onLine;
+    dot.className = "dot " + (online ? "online" : "offline");
+    netText.textContent = online ? "Online" : "Offline";
+    if (window.I18N) {
+      netText.textContent = online
+        ? I18N[document.getElementById("langSelect")?.value || "en"].online
+        : I18N[document.getElementById("langSelect")?.value || "en"].offline;
+    }
+
+    const count = loadQueue().length;
+    if (count > 0) {
+      pendingBar.style.display = "flex";
+      pendingText.textContent = getPendingText(count);
+      syncBtn.style.display = online ? "inline" : "none";
+    } else {
+      pendingBar.style.display = "none";
+    }
+  }
+  window.__updateOfflineUI = updateUI;
+
+  function sendLead(data, index) {
+    const iframeName = "sf_target_" + Date.now() + "_" + index;
+
+    // create unique iframe
+    const iframe = document.createElement("iframe");
+    iframe.name = iframeName;
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+
+    // create form
+    const f = document.createElement("form");
+    f.method = "POST";
+    f.target = iframeName;
+    f.action = WEB_TO_LEAD_URL;
+
+    data.oid = ACTIVE.ORG_ID;
+    data.retURL = "about:blank";
+
+    Object.entries(data).forEach(([k, v]) => {
+      if (v !== undefined) {
+        const i = document.createElement("input");
+        i.type = "hidden";
+        i.name = k;
+        i.value = v;
+        f.appendChild(i);
+      }
+    });
+
+    document.body.appendChild(f);
+    f.submit();
+
+    // cleanup
+    setTimeout(() => {
+      f.remove();
+      iframe.remove();
+    }, 3000);
+  }
+
+  function flushQueue() {
+    const queue = loadQueue();
+    if (!queue.length || !navigator.onLine) return;
+
+    syncBtn.classList.add("rotating");
+
+    const batch = queue.splice(0, BATCH);
+    batch.forEach((item, i) =>
+      setTimeout(() => sendLead(item, i), i * 600)
+    );
+
+    saveQueue(queue);
+
+    setTimeout(() => {
+      syncBtn.classList.remove("rotating");
+      updateUI();
+      if (queue.length) flushQueue();
+    }, batch.length * 500);
+  }
+
+  const emailInput = document.querySelector('input[name="email"]');
+
+  emailInput.addEventListener("input", function () {
+    this.setCustomValidity("");
+  });
+
+  form.addEventListener("submit", e => {
+    
+    const emailInput = form.querySelector('input[name="email"]');
+    const emailRegex =
+      /^(?!\.)(?!.*\.\.)([A-Za-z0-9._%+-]{1,64})@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+    if (!emailRegex.test(emailInput.value.trim())) {
+      e.preventDefault();
+      emailInput.focus();
+      emailInput.setCustomValidity("Please enter a valid email address");
+      emailInput.reportValidity();
+      return;
+    } else {
+      emailInput.setCustomValidity("");
+    }
+    if (!navigator.onLine) {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form));    
+      const q = loadQueue();
+      q.push(data);
+      saveQueue(q);
+      form.reset();
+      updateUI();
+      showSuccessPopup("offline");
+      return;
+    }
+
+    // ONLINE
+    e.preventDefault();
+    form.target = "hidden_sf_target";
+
+    if (!form.querySelector('[name="oid"]')) {
+      const oid = document.createElement("input");
+      oid.type = "hidden";
+      oid.name = "oid";
+      oid.value = ACTIVE.ORG_ID;
+      form.appendChild(oid);
+    }
+
+    if (!form.querySelector('[name="retURL"]')) {
+      const r = document.createElement("input");
+      r.type = "hidden";
+      r.name = "retURL";
+      r.value = "about:blank";
+      form.appendChild(r);
+    }
+
+    form.submit();
+    form.reset();
+    showSuccessPopup("online");
+  });
+
+  syncBtn.onclick = flushQueue;
+
+  autoToggle.onclick = () => {
+    autoSync = !autoSync;
+    localStorage.setItem(AUTO_KEY, autoSync);
+    autoToggle.classList.toggle("on", autoSync);
+    if (autoSync) flushQueue();
+  };
+
+  window.addEventListener("online", () => {
+    updateUI();
+    if (autoSync) flushQueue();
+  });
+
+  window.addEventListener("offline", updateUI);
+
+  autoToggle.classList.toggle("on", autoSync);
+  updateUI();
+})();
+function showSuccessPopup(type) {
+  const lang = localStorage.getItem("lang") || "en";
+
+  const titleKey =
+    type === "offline" ? "successOfflineTitle" : "successOnlineTitle";
+
+  const messageKey =
+    type === "offline" ? "successOfflineMessage" : "successOnlineMessage";
+
+  document.getElementById("popupTitle").textContent =
+    I18N[lang][titleKey];
+
+  document.getElementById("successMsg").textContent =
+    I18N[lang][messageKey];
+
+  document.getElementById("successPopup").style.display = "flex";
+}
+
+function closePopup() {
+  document.getElementById("successPopup").style.display = "none";
+}
+
+function loadModels() {
+  const select = document.querySelector(
+    'select[name="Web_To_Lead_Enquiry_Model_Id__c"]'
+  );
+
+  const models = MODEL_CONFIG[SF_ENV];
+
+  models.forEach(model => {
+    const option = document.createElement("option");
+    option.value = model.id;
+    option.textContent = model.label;
+    select.appendChild(option);
+  });
+}
+
+loadModels();
+
+</script>
+<div id="successPopup" class="popup-overlay">
+  <div class="popup-card">
+    <h3 id="popupTitle"></h3>
+
+    <p id="successMsg"></p>
+
+    <button onclick="closePopup()" class="popup-btn" data-i18n="ok">
+      OK
+    </button>
+  </div>
+</div>
+
+<script>
+  
+const I18N = {
+  en: {
+    title: "Norton Enquiry Form",
+    leadDetails: "Details",
+    autoSync: "Auto-sync",
+    firstName: "First Name",
+    lastName: "Last Name",
+    email: "Email",
+    phone: "Phone",
+    enquiryModel: "Enquiry Model",
+    enquiryType: "Enquiry Type",
+    selectProduct: "-- Select Product --",
+    selectEnquiryType: "-- Select Enquiry Type --",
+    enquiry: "Enquiry",
+    waitlist: "Waitlist",
+    commPref: "We want you to be the first to hear the exciting news about our latest products, events and services. If you are happy for us to stay in touch, let us know your preferred methods of communication by selecting from the options below: ",
+    commPref2: "I would like to receive marketing communications via",
+    submit: "Submit Enquiry",
+    online: "Online",
+    offline: "Offline",
+    pending: "{count} offline enquiry(s) pending",
+    postalCode: "Postal Code",
+    postalHint: "ZIP / PIN",
+    termsText: "I have read, understood and agree to the Terms of Service and agree that by submitting this form The Norton Motorcycle Co. Limited may contact me using the contact details provided in relation to my request.",
+    successOnlineTitle: "Submitted",
+    successOnlineMessage: "Your enquiry has been submitted successfully.",
+    successOfflineTitle: "Saved Offline",
+    successOfflineMessage: "Your enquiry has been saved and will sync automatically when you're back online.",
+    ok: "OK"
+  },
+
+  fr: {
+    title: "Formulaire de demande Norton",
+    leadDetails: "Détails de la demande",
+    autoSync: "Auto-sync",
+    firstName: "Prénom",
+    lastName: "Nom",
+    email: "Email",
+    phone: "Téléphone",
+    enquiryModel: "Modèle de demande",
+    enquiryType: "Type de demande",
+    selectProduct: "-- Sélectionner un produit --",
+    selectEnquiryType: "-- Sélectionner le type --",
+    enquiry: "Demande",
+    waitlist: "Liste d’attente",
+    commPref: "Nous souhaitons que vous soyez parmi les premiers informés des actualités concernant nos derniers produits, événements et services. Si vous acceptez que nous restions en contact, veuillez nous indiquer vos moyens de communication préférés en sélectionnant les options ci-dessous :",
+    commPref2: "Je souhaite recevoir des communications marketing via",
+    submit: "Soumettre la demande",
+    online: "En ligne",
+    offline: "Hors ligne",
+    pending: "{count} demande(s) hors ligne en attente",
+    postalCode: "Code postal",
+    postalHint: "Code postal",
+    termsText: "J’ai lu, compris et j’accepte les Conditions d’utilisation, et j’accepte qu’en soumettant ce formulaire, The Norton Motorcycle Co. Limited puisse me contacter en utilisant les coordonnées fournies dans le cadre de ma demande.",
+    successOnlineTitle: "Envoyé",
+    successOnlineMessage: "Votre demande a été envoyée avec succès.",
+    successOfflineTitle: "Enregistré hors ligne",
+    successOfflineMessage: "Votre demande a été enregistrée et sera synchronisée automatiquement lorsque vous serez en ligne.",
+    ok: "OK"
+  },
+
+  de: {
+    title: "Norton Anfrageformular",
+    leadDetails: "Anfragedetails",
+    autoSync: "Auto-sync",
+    firstName: "Vorname",
+    lastName: "Nachname",
+    email: "E-Mail",
+    phone: "Telefon",
+    enquiryModel: "Anfragemodell",
+    enquiryType: "Anfragetyp",
+    selectProduct: "-- Produkt auswählen --",
+    selectEnquiryType: "-- Typ auswählen --",
+    enquiry: "Anfrage",
+    waitlist: "Warteliste",
+    commPref: "Wir möchten, dass Sie als Erste über spannende Neuigkeiten zu unseren neuesten Produkten, Veranstaltungen und Services informiert werden. Wenn Sie damit einverstanden sind, dass wir mit Ihnen in Kontakt bleiben, teilen Sie uns bitte Ihre bevorzugten Kommunikationswege mit, indem Sie unten eine Auswahl treffen:",
+    commPref2: "Ich möchte Marketingkommunikation erhalten über",
+    submit: "Anfrage absenden",
+    online: "Online",
+    offline: "Offline",
+    pending: "{count} Offline-Anfrage(n) ausstehend",
+    postalCode: "Postleitzahl",
+    postalHint: "PLZ",
+    termsText: "Ich habe die Nutzungsbedingungen gelesen, verstanden und akzeptiert und stimme zu, dass The Norton Motorcycle Co. Limited mich im Zusammenhang mit meiner Anfrage unter Verwendung der angegebenen Kontaktdaten kontaktieren darf.",
+    successOnlineTitle: "Gesendet",
+    successOnlineMessage: "Ihre Anfrage wurde erfolgreich gesendet.",
+    successOfflineTitle: "Offline gespeichert",
+    successOfflineMessage: "Ihre Anfrage wurde gespeichert und wird automatisch synchronisiert, sobald Sie wieder online sind.",
+    ok: "OK"
+  }
+};
+
+  const langSelect = document.getElementById("langSelect");
+  const netText = document.getElementById("netText");
+
+  function applyLanguage(lang) {
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      el.textContent = I18N[lang][el.dataset.i18n];
+    });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+      const key = el.dataset.i18nPlaceholder;
+      el.placeholder = I18N[lang][key] || "";
+    });
+    document.title = I18N[lang].title;
+    netText.textContent = navigator.onLine
+      ? I18N[lang].online
+      : I18N[lang].offline;
+
+    localStorage.setItem("lang", lang);
+  }
+
+  langSelect.addEventListener("change", e => {
+    applyLanguage(e.target.value);
+    if (window.__updateOfflineUI) {
+      window.__updateOfflineUI();
+    }
+  });
+
+  window.I18N = I18N;
+  const savedLang = localStorage.getItem("lang") || "en";
+  langSelect.value = savedLang;
+  applyLanguage(savedLang);
+
+  window.addEventListener("online", () => applyLanguage(langSelect.value));
+  window.addEventListener("offline", () => applyLanguage(langSelect.value));
+  if (window.__updateOfflineUI) {
+    window.__updateOfflineUI();
+  }
+  
+</script>
+
+</body>
+</html>
+
