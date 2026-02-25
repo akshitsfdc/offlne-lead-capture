@@ -772,9 +772,9 @@ const WEB_TO_LEAD_URL =
 
   form.addEventListener("submit", e => {
     
-    const lang = localStorage.getItem("lang") || "en";
-    const sfLangValue = LANGUAGE_TO_SF[lang] || "English";
-    document.getElementById("sfLanguage").value = sfLangValue;
+    const lang =  localStorage.getItem("lang") || document.getElementById("langSelect")?.value || "en";
+
+    document.getElementById("sfLanguage").value = LANGUAGE_TO_SF[lang] || "English";
 
     const requiredFields = form.querySelectorAll("[required]");
 
